@@ -483,13 +483,24 @@ if (!isBookingAllowed(journeyDate)) {
 
   const bookingConfirm = async () => {
     try {
+
+       const bookingData = await selectedSeats.map((seat) => ({
+              ...seat,
+              mobileNumber: customerDetails.mobileNumber,
+              email: customerDetails.email,
+              proof: customerDetails.proof,
+              proofIdNumber: customerDetails.proofIdNumber,
+              PNR: generatePNR(),
+              totalprice:totalPrice,
+              totalTicket:selectedSeats.length
+            }));
       setLoading(true);
       const response = await client.post(
         "/razorpay/payment",
         {
           date: seatData?.date,
           totalPrice,
-          BookingDetails: selectedSeats,
+          BookingDetails: bookingData,
         },
         { withCredentials: true }
       );
