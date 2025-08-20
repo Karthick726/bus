@@ -265,7 +265,8 @@ console.log("✅ All passengers updated for order:", order_id, "on date:", trave
       console.log("📄 Invoice generated for order:", order_id);
 
       // send SMS
-      await Promise.all(bookingSession.bookings.map(each => sendSms(bookingDate, each)));
+      const smsPromises = bookingSession.bookings.map((each) => sendSms(date, each));
+      const promiseResult = await Promise.all(smsPromises);
     }
 
     res.json({ status: "ok" });
