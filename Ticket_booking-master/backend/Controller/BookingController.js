@@ -269,6 +269,27 @@ console.log("✅ All passengers updated for order:", order_id, "on date:", trave
       const promiseResult = await Promise.all(smsPromises);
     }
 
+    if(event ==="payment.failed"){
+      const bookingSession = await Booking.findOne(
+  { "bookings.order_id": order_id }, 
+  { date: 1, bookings: 1 }
+);
+
+if (!bookingSession) {
+  return res.json({ status: "ok" });
+}
+
+const travelDate = bookingSession.date;
+
+bookingSession.bookings.forEach(b => {
+  if (b.order_id === order_id) {
+    b.bookingStatus = "Failed";
+  }
+});
+
+await bookingSession.save();
+    }
+
     res.json({ status: "ok" });
   } catch (err) {
     console.error("Webhook error:", err);
