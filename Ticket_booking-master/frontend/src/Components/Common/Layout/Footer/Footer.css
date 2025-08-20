@@ -1,0 +1,141 @@
+.ssfooter {
+background-color: #032040;
+
+
+}
+
+.con {
+  max-width: 1610px !important;
+}
+
+.footerstart {
+  color: white;
+  text-align: center;
+}
+
+.footerstart .footthanks {
+  font-size: 25px;
+  font-weight: 600;
+  padding-top: 20px;
+font-family: "Barlow";
+}
+
+.footerstart .footquestions {
+  font-size: 18px;
+  font-weight: 500;
+  font-family: "Barlow";
+}
+
+.footersections h5 {
+  font-size: 20px;
+  color: #e89e25 !important;
+font-family: "Barlow";
+}
+
+.footerlinks h5 {
+  color: #e89e25 !important;
+  margin-bottom: 20px;
+  font-family: "Barlow";
+}
+
+.companydetails {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-bottom: 20px;
+}
+
+.copyrights a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.terms-privacy a {
+  color: #fff;
+  text-decoration: none;
+}
+
+
+.footersections .quicklinks {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.footersections .quicklinks li {
+  margin-top: 5px;
+
+}
+
+.footersections .quicklinks li a:hover{
+    transform: translateX(5px); 
+    transition: transform 0.3s ease;
+    /* color: red; */
+    
+}
+
+li .active{
+  color: #ec2125 !important;
+}
+
+
+
+.social-icon {
+  font-size: 1.5rem;
+  color: #fff;
+  transition: color 0.3s;
+}
+
+.social-icon:hover {
+  color: #007bff;
+}
+
+.footaddress,
+.footmail,
+.footphone {
+  color: #fff;
+}
+
+.footersections .quicklinks a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.footabout {
+  color: #fff;
+}
+
+.shruiken {
+  width: 18px;
+  height: 18px;
+}
+
+@media only screen and (min-width: 1024px) {
+  .footersections {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+.rows{
+  padding: 20px;
+}
+
+/* @media (max-width:992px) {
+.rows{
+  display: flex;
+  flex-wrap: wrap;
+  gap:20px;
+  justify-content: center;
+}
+  
+} */
+
+@media (max-width:768px) {
+  .companydetails{
+    justify-content: center;
+    gap:20px;
+    
+  }
+  
+}

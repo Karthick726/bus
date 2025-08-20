@@ -1,0 +1,29 @@
+.icon {
+  font-size: 20px;
+  
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.edit-icon {
+  width: 35px;
+  height: 35px;
+  background-color: green;
+  color: white;
+}
+
+.delete-icon {
+     width: 35px;
+  height: 35px;
+    background-color: red;
+    color: white;
+    margin-left: 10px;
+}
+
+
+td, th {
+  vertical-align: middle !important;
+}

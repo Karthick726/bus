@@ -1,0 +1,156 @@
+.aboutus-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 60px 20px;
+  background: #fff;
+  gap: 40px;
+}
+
+.aboutus-left {
+  position: relative;
+width: 30%;
+
+}
+
+.aboutus-img-main {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.aboutus-img-sub {
+  width: 60%;
+  position: absolute;
+  bottom: 50px;
+  right: -100px;
+  border: 10px solid #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.aboutus-right {
+  width: 60%;
+}
+
+
+
+
+
+
+
+.aboutus-features {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+
+
+.aboutus-contact {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  flex-wrap: wrap;
+}
+
+.call-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  color: #2d3436;
+}
+
+.phone-icon {
+  font-size: 24px;
+  color: #e89e25;
+}
+
+
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+  .aboutus-main {
+    padding: 40px 30px;
+    gap: 30px;
+  }
+
+  .aboutus-img-sub {
+    width: 40%;
+    bottom: 50px;
+    right: 60px;
+  }
+   .aboutus-img-main {
+    width: 70%;
+    height: 530px;
+   
+  }
+
+
+  .aboutus-contact {
+    gap: 30px;
+  }
+   .aboutus-left{
+    margin: 0px auto;
+    width: 100%;
+   }
+      .aboutus-right{
+        width: 100%;
+      }
+}
+
+@media (max-width: 768px) {
+  .aboutus-main {
+    flex-direction: column;
+    padding: 40px 20px;
+  }
+
+  .aboutus-left,
+  .aboutus-right {
+    max-width: 100%;
+  }
+
+
+
+  .aboutus-features {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .aboutus-contact {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .call-info {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .aboutus-img-sub {
+    display: none;
+  }
+  .aboutus-img-main {
+    width: 100%;
+  }
+  .aboutus-contact {
+    align-items: stretch;
+  }
+
+  .call-info {
+    font-size: 13px;
+  }
+}
+
+.book-now-btn {
+  padding: 10px 20px;
+  font-size: 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}

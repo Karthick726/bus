@@ -1,0 +1,53 @@
+.terms-containers {
+  max-width: 800px;
+  margin:0px auto;
+  padding: 30px;
+  border-radius: 12px;
+}
+
+.terms-containers h1 {
+  text-align: center;
+  font-size: 2.2rem;
+  color: #1e3a8a;
+  margin-bottom: 30px;
+}
+
+.terms-containers section {
+  margin-bottom: 25px;
+}
+
+
+
+.terms-containers ul {
+  padding-left: 20px;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.terms-containers li {
+  list-style: disc;
+  margin-bottom: 6px;
+}
+
+.ticket-icon {
+  color: gold;
+  margin-right: 6px;
+}
+
+
+ul >li{
+    list-style: none;
+}
+
+.section1-card1s>h3{
+        color: #333;
+    font-family: "Barlow";
+    font-weight: 700;
+    font-size: 24px
+}
+.section1-card1s>p{
+        font-size: 18px;
+    font-weight: 400;
+    color: #444;
+    font-family: "Heebo";
+}

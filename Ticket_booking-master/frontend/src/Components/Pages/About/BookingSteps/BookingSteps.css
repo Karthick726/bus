@@ -1,0 +1,203 @@
+.booking-heading{
+     display: flex;
+     flex-direction: column;
+     width: 100%;
+     align-items: center;
+     justify-content: center;
+     margin-top: 20px;
+     text-align: center;
+  
+}
+
+.booking-heading-title > p{
+    font-family: "Barlow";
+    color: #ec2125;
+    font-weight: 700;
+    line-height: 1.1em;
+    font-size: 18px;
+}
+
+.booking-heading-subtitle >h2{
+    color: #000000;
+    font-size: 46px;
+    font-weight: 600;
+    line-height: 1.1em;
+    font-family: "Barlow";
+}
+
+.span-booking{
+    margin: 0px 7px;
+    background: linear-gradient(180deg, rgba(240, 101, 43, 0) 73.3%, rgb(232, 158, 37) 74.1%);
+}
+
+.booking-heading-content{
+    text-align: center;
+    display: inline-block;
+    margin-bottom: 20px;
+  
+    font-family: "Heebo";
+    font-size: 18px;
+    color: #8d8d8d;
+    line-height: 1.5em;
+    font-weight: 400;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.booking-heading-content > p{
+    width: 700px;
+    margin-top: 20px;
+    padding-right: 5%;
+    padding-left: 5%;
+}
+
+.booking-step {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    justify-content: space-evenly;
+    background-color: #f9f9f9;
+    margin-bottom: 20px;
+    padding: 10px;
+}
+
+.booking-steps {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 350px;
+    min-height: 300px;
+    gap: 20px;
+    position: relative;
+   
+}
+.booking-steps div{
+    text-align: center;
+ 
+}
+
+.booking-steps div:first-child {
+    font-size: 32px;
+    color: #fff;
+    background-color: #ec2125;
+    /* width: 20%; */
+    text-align: center;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 10px
+}
+
+.booking-steps h3 {
+
+    color: #333;
+
+    font-family: "Barlow";
+    font-weight: 700;
+    line-height: 1.2em;
+    font-size: 24px;
+}
+
+.booking-steps p {
+    font-family: "Heebo";
+    font-size: 18px;
+    color: #8d8d8d;
+    line-height: 1.5em;
+    font-weight: 400;
+}
+
+
+.arrow{
+    position: absolute;
+    top: 20%;
+    right: -17%;
+    z-index: 2;
+
+}
+
+.arrow-icons{
+    transform: rotateX(180deg);
+    width: 100px;
+    opacity: 0.3;
+
+   
+}
+
+.arrow-icon{
+    width: 100px;
+    opacity: 0.3;
+}
+
+.arrows{
+    position: absolute;
+    top: 30%;
+    right: -17%;
+    z-index: 2;
+
+}
+
+@media (max-width: 1200px) {
+    .booking-steps {
+      width: 280px;
+    }
+  
+    .arrow, .arrows {
+      right: -12%;
+    }
+  
+    .arrow-icons,
+    .arrow-icon {
+      width: 80px;
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .booking-step {
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 40px;
+      padding: 20px 10px;
+    }
+  
+    .booking-steps {
+      width:350px;
+      min-height: auto;
+    }
+  
+    .arrow,
+    .arrows {
+      display: none;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .booking-heading-subtitle > h2 {
+      font-size: 28px;
+      text-align: center;
+    }
+  
+    .booking-heading-content > p {
+      width: 100%;
+      padding: 0 15px;
+      font-size: 16px;
+    }
+  
+    .booking-steps h3 {
+      font-size: 20px;
+    }
+  
+    .booking-steps p {
+      font-size: 16px;
+    }
+    .booking-steps {
+        width:300px;
+      }
+  }
+  

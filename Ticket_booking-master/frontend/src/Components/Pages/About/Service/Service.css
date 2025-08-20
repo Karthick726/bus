@@ -1,0 +1,119 @@
+.My-icon {
+  color: #ec2125;
+  font-size: 40px;
+}
+.service{
+    margin: 60px auto;
+}
+.services-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.services-section1 {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  gap: 30px;
+  align-items: center;
+  margin-top: 3%;
+}
+.services-section1 .section1-card1 {
+  width: 31%;
+  height: max-content;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 40px rgba(0, 0, 0, 0.1);
+}
+.section1-card1 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+
+}
+.section1-card1 h3 {
+    color: #333;
+    font-family: "Barlow";
+    font-weight: 700;
+    font-size: 24px;
+}
+.section1-card1 p {
+    font-family: "Heebo";
+    font-size: 18px;
+    color: #8d8d8d;
+    line-height: 1.5em;
+    font-weight: 400;
+}
+.section1-card1 a {
+  color: #e89e25;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+}
+.section1-links {
+  display: flex;
+  align-items: center;
+}
+.Arrow-icon {
+  color: #e89e25;
+  margin-left: 10px;
+}
+
+.section1-card1:hover {
+  background-color: #e89e25;
+  color: white;
+}
+
+.section1-card1:hover .My-icon,
+.section1-card1:hover h3,
+.section1-card1:hover p,
+.section1-card1:hover a,
+.section1-card1:hover .Arrow-icon {
+  color: white;
+}
+
+.section1-card1 {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@media (max-width: 1024px) {
+    .services-section1 {
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+  
+    .services-section1 .section1-card1 {
+      width: 45%;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .services-section1 {
+      flex-direction: column;
+      gap: 20px;
+    }
+  
+    .services-section1 .section1-card1 {
+      width: 90%;
+    }
+  
+    .section1-card1 h3 {
+      font-size: 20px;
+    }
+  
+    .section1-card1 p {
+      font-size: 16px;
+    }
+  
+    .My-icon {
+      font-size: 30px;
+    }
+  }
+  
