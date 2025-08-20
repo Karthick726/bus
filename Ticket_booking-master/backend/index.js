@@ -26,7 +26,7 @@ const corsOptions = {
     "http://localhost:5173",
     "http://localhost:3000",
     "https://ticket-booking-frontend-eta.vercel.app",
-    "https://ticket-booking-admin.vercel.app",
+    "https://bus-frontend-two.vercel.app",
   ],
 
   methods: ["GET", "POST", "PUT", "DELETE"],
