@@ -18,6 +18,7 @@ const infoRoute = require("./Route/InfoRoute");
 const cancelRoute = require("./Route/cancelRoute")
 const expireRoute = require("./Route/expireRoute")
 const OfferRoute = require("./Route/OfferRoute")
+const WebHookRoute = require("./Route/WebhookRoute")
 
 app.use(cookieParser());
 app.use(express.json());
@@ -52,6 +53,7 @@ app.use("/info", infoRoute);
 app.use("/cancel",cancelRoute);
 app.use("/expires",expireRoute);
 app.use("/offer",OfferRoute);
+app.use("/api",WebHookRoute);
 
 // MongoDB connection
 const mongo_url =

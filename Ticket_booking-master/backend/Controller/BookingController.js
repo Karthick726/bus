@@ -189,7 +189,7 @@ exports.createBooking = async (req, res) => {
 };
 
 exports.webhooks= async (req, res) => {
-  const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+  const secret = "Bus_Ticket_Booking_Nbs";
 
   const shasum = crypto.createHmac("sha256", secret);
   shasum.update(JSON.stringify(req.body));
