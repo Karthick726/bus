@@ -26,6 +26,7 @@ const BookingSchema = new mongoose.Schema({
   cancelOtpCreatedAt:{type:Number},
   otpAttempt:{type:Number},
   createdAt: { type: Date, default: Date.now },
+  lockedAt: { type: Date, default: Date.now },
   totalprice: { type: Number},
   totalTicket: { type: Number  },
 

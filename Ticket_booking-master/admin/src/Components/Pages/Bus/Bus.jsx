@@ -126,13 +126,19 @@ const BusLayout = () => {
                       <FormControlLabel
                         value="6819d38acc13411e292deaf1"
                         control={<Radio />}
-                        label="2 + 2"
+                        label="2 + 2(41 seats)"
+                      />
+                        <FormControlLabel
+                        value="68ad7b2100a4170b659882ff"
+                        control={<Radio />}
+                        label="2 + 2(28 seats)"
                       />
                       <FormControlLabel
                         value="6819d362cc13411e292deab9"
                         control={<Radio />}
-                        label="3 + 2"
+                        label="3 + 2(54 seats)"
                       />
+                   
                     </RadioGroup>
                   </FormControl>
                 </Grid>

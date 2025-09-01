@@ -14,6 +14,8 @@ const instance = require("../razorpay/Razorpay");
 exports.verifyPayment = async (req, res) => {
   try {
     const { razorpayResponse, date, bookingData } = req.body;
+
+    console.log("req body",req.body)
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
       razorpayResponse;
 
@@ -26,7 +28,9 @@ exports.verifyPayment = async (req, res) => {
       return res.status(400).json({ message: "Invalid payment signature" });
     }
 
+
     const seatDoc = await Bookseat.findOne({ date });
+    console.log("seatDoc",seatDoc)
     const selectedSeatIds = bookingData.map((s) => s.id);
 
     if (!seatDoc) {
@@ -40,11 +44,11 @@ exports.verifyPayment = async (req, res) => {
       (b) => selectedSeatIds.includes(b.id) && b.status === "locked"
     );
 
-    if (lockedSeats.length !== bookingData.length) {
-      return res.status(400).json({
-        message: "Some seats are not locked or already booked.",
-      });
-    }
+    // if (lockedSeats.length !== bookingData.length) {
+    //   return res.status(400).json({
+    //     message: "Some seats are not locked or already booked.",
+    //   });
+    // }
 
     // Update seat status to "booked"
     seatDoc.bookings = seatDoc.bookings.map((seat) => {
@@ -58,7 +62,9 @@ exports.verifyPayment = async (req, res) => {
       return seat;
     });
 
-    await seatDoc.save();
+  const booked=  await seatDoc.save();
+
+  console.log("booked",booked.bookings)
 
     res
       .status(200)
@@ -270,6 +276,10 @@ console.log("✅ All passengers updated for order:", order_id, "on date:", trave
     }
 
     if(event ==="payment.failed"){
+
+      const payment = req.body.payload.payment.entity;
+      const { order_id, id: payment_id, amount } = payment;
+
       const bookingSession = await Booking.findOne(
   { "bookings.order_id": order_id }, 
   { date: 1, bookings: 1 }
@@ -681,8 +691,11 @@ exports.unlockSeats = async (req, res) => {
   try {
     const { date, seatIds } = req.body;
 
+    console.log(seatIds)
+
     const bookingDoc = await Bookseat.findOne({ date });
-    if (!bookingDoc)
+    const bookingsSeat=await Booking.findOne({date})
+    if (!bookingDoc || !bookingsSeat)
       return res.status(404).json({ message: "No booking doc found" });
 
     // Remove seats with status "locked" and matching IDs
@@ -690,7 +703,16 @@ exports.unlockSeats = async (req, res) => {
       (b) => !(seatIds.includes(b.id) && b.status === "locked")
     );
 
+
+
     await bookingDoc.save();
+
+    bookingsSeat.bookings=bookingsSeat.bookings.filter((b)=>!(seatIds.includes(b.id) && b.bookingStatus === "locked"))
+    await bookingsSeat.save()
+
+    console.log("filter",bookingsSeat.bookings.filter((b)=>!(seatIds.includes(b.id) && b.bookingStatus === "locked")))
+
+    console.log("BookingSEAT",bookingsSeat.bookings)
     res.status(200).json({ message: "Seats unlocked" });
   } catch (err) {
     res.status(500).json({ message: err.message });

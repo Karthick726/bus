@@ -14,18 +14,17 @@ const initalData = {
 };
 
 const SeatInfo = ({ seatData, packages, booked, sepcial }) => {
-   
-   console.log(seatData)
-    const bookedStatus=booked?.filter((value)=>value.status ==="booked")
+  console.log(seatData);
+  const bookedStatus = booked?.filter((value) => value.status === "booked");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [seatOpen, setSeatOpen] = useState(false);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [term, setTerm] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
-const [timerStarted, setTimerStarted] = useState(false);
-const [countdownExpired, setCountdownExpired] = useState(false);
-let timerId = null;
+  const [timerStarted, setTimerStarted] = useState(false);
+  const [countdownExpired, setCountdownExpired] = useState(false);
+  let timerId = null;
 
   const [customerDetails, setCustomerDetails] = useState(initalData);
   const [error, setError] = useState({
@@ -35,19 +34,18 @@ let timerId = null;
     proof: "",
   });
 
-
   useEffect(() => {
-  if (timerStarted && !bookingSuccess) {
-    timerId = setTimeout(() => {
-      setCountdownExpired(true);
-      toast.error("Session expired. Redirecting to home...");
-  
-     window.location.href = "/";
-    }, 20 * 60 * 1000);
+    if (timerStarted && !bookingSuccess) {
+      timerId = setTimeout(() => {
+        setCountdownExpired(true);
+        toast.error("Session expired. Redirecting to home...");
 
-    return () => clearTimeout(timerId);
-  }
-}, [timerStarted, bookingSuccess]);
+        window.location.href = "/";
+      }, 20 * 60 * 1000);
+
+      return () => clearTimeout(timerId);
+    }
+  }, [timerStarted, bookingSuccess]);
 
   const [formErrors, setFormErrors] = useState({});
 
@@ -87,37 +85,34 @@ let timerId = null;
     duration = `${diffHours} : ${paddedMinutes} Hrs`;
   }
 
-
-
-
   const isBookingAllowed = (journeyDateStr) => {
+    console.log(journeyDateStr);
+    // journeyDateStr example: "30/06/2025"
+    const [day, month, year] = journeyDateStr.split("/");
 
-    console.log(journeyDateStr)
-  // journeyDateStr example: "30/06/2025"
-  const [day, month, year] = journeyDateStr.split("/");
+    // Create journey date with start time at 5:30 AM
+    const journeyStartTime = new Date(`${year}-${month}-${day}T05:30:00`);
 
-  // Create journey date with start time at 5:30 AM
-  const journeyStartTime = new Date(`${year}-${month}-${day}T05:30:00`);
+    // Subtract 2 hours for booking cutoff
+    const bookingCutoff = new Date(
+      journeyStartTime.getTime() - 2 * 60 * 60 * 1000
+    );
 
-  // Subtract 2 hours for booking cutoff
-  const bookingCutoff = new Date(journeyStartTime.getTime() - 2 * 60 * 60 * 1000);
+    // Current time
+    const now = new Date();
 
-  // Current time
-  const now = new Date();
+    // Compare current time to cutoff time
+    return now < bookingCutoff;
+  };
 
-  // Compare current time to cutoff time
-  return now < bookingCutoff;
-};
+  // useEffect(()=>{
+  //   const journeyDate = seatData?.date;
 
-// useEffect(()=>{
-//   const journeyDate = seatData?.date;
-
-// if (!isBookingAllowed(journeyDate)) {
-//   toast.error("Booking closed. Bookings are only allowed up to 2 hours before departure.");
-//   navigate("/")
-// } 
-// },[seatData?.date])
-
+  // if (!isBookingAllowed(journeyDate)) {
+  //   toast.error("Booking closed. Bookings are only allowed up to 2 hours before departure.");
+  //   navigate("/")
+  // }
+  // },[seatData?.date])
 
   const handleOpen = () => {
     setSeatOpen(true);
@@ -126,51 +121,49 @@ let timerId = null;
   const rows = parseInt(seatData?.layoutResult?.rows);
   const seats = seatData?.layoutResult?.seats || [];
 
-
-  console.log(seats)
+  console.log(seats);
   const getSeatsForRow = (rowNumber) =>
     seats.filter((seat) => parseInt(seat.row) === rowNumber);
 
   const handleSeatChange = (seat) => {
-  setSelectedSeats((prev) => {
-    const exists = prev.find((s) => s.id === seat._id);
+    setSelectedSeats((prev) => {
+      const exists = prev.find((s) => s.id === seat._id);
 
-    if (exists) {
-      // If seat is already selected, deselect it
-      setFormErrors((prevErrors) => {
-        const newErrors = { ...prevErrors };
-        delete newErrors[seat._id];
-        return newErrors;
-      });
-      return prev.filter((s) => s.id !== seat._id);
-    } else {
-      // If max seat limit reached, remove the first selected seat
-      let updatedSeats = [...prev];
-      if (prev.length === 5) {
-        toast.dismiss();
-        toast.error("Maximum 5 seats allowed.");
-       return updatedSeats;
+      if (exists) {
+        // If seat is already selected, deselect it
+        setFormErrors((prevErrors) => {
+          const newErrors = { ...prevErrors };
+          delete newErrors[seat._id];
+          return newErrors;
+        });
+        return prev.filter((s) => s.id !== seat._id);
+      } else {
+        // If max seat limit reached, remove the first selected seat
+        let updatedSeats = [...prev];
+        if (prev.length === 5) {
+          toast.dismiss();
+          toast.error("Maximum 5 seats allowed.");
+          return updatedSeats;
+        }
+
+        return [
+          ...updatedSeats,
+          {
+            id: seat._id,
+            number: seat.number,
+            row: seat.row,
+            price: packages.price,
+            name: "",
+            age: "",
+            gender: "",
+            agegroup: "",
+          },
+        ];
       }
+    });
+  };
 
-      return [
-        ...updatedSeats,
-        {
-          id: seat._id,
-          number: seat.number,
-          row: seat.row,
-          price: packages.price,
-          name: "",
-          age: "",
-          gender: "",
-          agegroup: "",
-        },
-      ];
-    }
-  });
-};
-
-
-  console.log(selectedSeats)
+  console.log(selectedSeats);
 
   const handleDetailsChange = (seatId, fieldName, fieldValue) => {
     setSelectedSeats((prevSeats) =>
@@ -309,8 +302,6 @@ let timerId = null;
       }
     }
 
-
-
     return { message: message };
   };
 
@@ -319,7 +310,6 @@ let timerId = null;
       e.preventDefault();
     }
   };
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -337,9 +327,8 @@ let timerId = null;
     }));
   };
 
-
-  const handleProofChange=(e)=>{
-      const { name, value } = e.target;
+  const handleProofChange = (e) => {
+    const { name, value } = e.target;
 
     const err = errorMessage(name, value).message;
 
@@ -351,9 +340,9 @@ let timerId = null;
     setCustomerDetails((pre) => ({
       ...pre,
       [name]: value,
-      proofIdNumber:""
+      proofIdNumber: "",
     }));
-  }
+  };
   const handleBlur = (e) => {
     const { name, value } = e.target;
 
@@ -389,7 +378,7 @@ let timerId = null;
           proof: "proof is required",
         };
       });
-           return;
+      return;
     }
     if (customerDetails.proofIdNumber === "") {
       setError((prev) => {
@@ -399,7 +388,7 @@ let timerId = null;
         };
       });
 
-      return ;
+      return;
     }
 
     let hasErrors = false;
@@ -456,22 +445,19 @@ let timerId = null;
       return;
     }
 
+    if (seatData?.date) {
+      const journeyDate = seatData?.date;
 
-    if(seatData?.date){
-        const journeyDate = seatData?.date;
-
-if (!isBookingAllowed(journeyDate)) {
-  toast.error("Booking closed. Bookings are only allowed up to 2 hours before departure.");
-  navigate("/")
-  return
-} else {
- bookingConfirm();
-}
-
-
+      if (!isBookingAllowed(journeyDate)) {
+        toast.error(
+          "Booking closed. Bookings are only allowed up to 2 hours before departure."
+        );
+        navigate("/");
+        return;
+      } else {
+        bookingConfirm();
+      }
     }
-
-   
   };
 
   const generatePNR = () => {
@@ -483,17 +469,16 @@ if (!isBookingAllowed(journeyDate)) {
 
   const bookingConfirm = async () => {
     try {
-
-       const bookingData = await selectedSeats.map((seat) => ({
-              ...seat,
-              mobileNumber: customerDetails.mobileNumber,
-              email: customerDetails.email,
-              proof: customerDetails.proof,
-              proofIdNumber: customerDetails.proofIdNumber,
-              PNR: generatePNR(),
-              totalprice:totalPrice,
-              totalTicket:selectedSeats.length
-            }));
+      const bookingData = await selectedSeats.map((seat) => ({
+        ...seat,
+        mobileNumber: customerDetails.mobileNumber,
+        email: customerDetails.email,
+        proof: customerDetails.proof,
+        proofIdNumber: customerDetails.proofIdNumber,
+        PNR: generatePNR(),
+        totalprice: totalPrice,
+        totalTicket: selectedSeats.length,
+      }));
       setLoading(true);
       const response = await client.post(
         "/razorpay/payment",
@@ -506,7 +491,7 @@ if (!isBookingAllowed(journeyDate)) {
       );
 
       if (response.status === 200) {
-         setTimerStarted(true); 
+        setTimerStarted(true);
         setLoading(false);
         const options = {
           key: "rzp_test_4THACgEOcz97Hi",
@@ -532,8 +517,8 @@ if (!isBookingAllowed(journeyDate)) {
               PNR: generatePNR(),
               order_id: response.data?.order.id,
               payment_id: paymentId,
-              totalprice:totalPrice,
-              totalTicket:selectedSeats.length
+              totalprice: totalPrice,
+              totalTicket: selectedSeats.length,
             }));
             try {
               const responseBooking = await client.post(
@@ -550,7 +535,7 @@ if (!isBookingAllowed(journeyDate)) {
 
               if (responseBooking.status === 200) {
                 setLoading(false);
-                setBookingSuccess(true)
+                setBookingSuccess(true);
                 saveBooking(
                   razorpayResponse.razorpay_payment_id,
                   razorpayResponse.razorpay_order_id
@@ -561,68 +546,78 @@ if (!isBookingAllowed(journeyDate)) {
               if (err.response.status === 400) {
                 toast.error(err.response.data.message);
               }
-          
             }
           },
-           modal: {
-    ondismiss: async function () {
-      toast.error("Payment was cancelled or failed.");
-          navigate("/")
-  setBookingSuccess(true)
-      try {
-         const responseUnlock= await client.post("/booking/unlock", {
-          date: seatData?.date,
-          seatIds: selectedSeats.map((seat) => seat.id),
-        }, { withCredentials: true });
-        if(responseUnlock.status===200){
-            setLoading(false);
-        }
-      } catch (unlockErr) {
-          setLoading(false);
-        console.error("Unlock failed:", unlockErr);
-      }
-    },
-  },
+          modal: {
+            ondismiss: async function () {
+              toast.error("Payment was cancelled or failed.");
+              navigate("/");
+              setBookingSuccess(true);
+              try {
+                const responseUnlock = await client.post(
+                  "/booking/unlock",
+                  {
+                    date: seatData?.date,
+                    seatIds: selectedSeats.map((seat) => seat.id),
+                  },
+                  { withCredentials: true }
+                );
+                if (responseUnlock.status === 200) {
+                  setLoading(false);
+                }
+              } catch (unlockErr) {
+                setLoading(false);
+                console.error("Unlock failed:", unlockErr);
+              }
+            },
+          },
 
           theme: {
             color: "#3399cc",
           },
         };
 
-       const razor = new window.Razorpay(options);
+        const razor = new window.Razorpay(options);
 
-       razor.on("payment.failed", async function (response) {
- 
+        razor.on("payment.failed", async function (response) {
+          try {
+            const responseUnlock = await client.post(
+              "/booking/unlock",
+              {
+                date: seatData?.date,
+                seatIds: selectedSeats.map((seat) => seat.id),
+              },
+              { withCredentials: true }
+            );
 
-  try {
-    await client.post("/booking/unlock", {
-      date: seatData?.date,
-      seatIds: selectedSeats.map((seat) => seat.id),
-    }, { withCredentials: true });
-  } catch (err) {
-    console.error("Unlock failed:", err);
-  }
+            if (responseUnlock.status === 200) {
+              navigate("/");
 
-  // reset state
-  setBookingSuccess(false);
-  setTimerStarted(false);
-  setCountdownExpired(false);
-  setSelectedSeats([]);
-  setCustomerDetails(initalData);
+              window.location.reload();
+                toast.error("Payment failed. Redirecting to home...");
+            }
+          } catch (err) {
+            console.error("Unlock failed:", err);
+          }
 
-  // redirect home
-  navigate("/");
-   
-  window.location.reload()
-  toast.error("Payment failed. Redirecting to home...");
-});
- razor.open();
+          // reset state
+          setBookingSuccess(false);
+          setTimerStarted(false);
+          setCountdownExpired(false);
+          setSelectedSeats([]);
+          setCustomerDetails(initalData);
+
+          // redirect home
+
+        
+        });
+        razor.open();
       }
     } catch (err) {
       setLoading(false);
-        setBookingSuccess(false)
-        setTimerStarted(false)
-        setCountdownExpired(false)
+      setBookingSuccess(false);
+      setTimerStarted(false);
+      setCountdownExpired(false);
       if (err.response.status === 400) {
         toast.error(err.response.data.message);
       }
@@ -640,8 +635,8 @@ if (!isBookingAllowed(journeyDate)) {
       PNR: generatePNR(),
       order_id: order_id,
       payment_id: payment_id,
-      totalprice:totalPrice,
-              totalTicket:selectedSeats.length
+      totalprice: totalPrice,
+      totalTicket: selectedSeats.length,
     }));
 
     try {
@@ -673,9 +668,9 @@ if (!isBookingAllowed(journeyDate)) {
         setSeatOpen(false);
         setCustomerDetails(initalData);
         setTerm(false);
-        setBookingSuccess(false)
-        setTimerStarted(false)
-        setCountdownExpired(false)
+        setBookingSuccess(false);
+        setTimerStarted(false);
+        setCountdownExpired(false);
         navigate("/");
       }
     } catch (err) {
@@ -686,14 +681,12 @@ if (!isBookingAllowed(journeyDate)) {
     }
   };
 
-
-
   return (
     <div className="container conn">
       {!packages || !booked ? (
         <div className="spinner-wrapper">
           <div className="spinner-border"></div>
-          <div className="spinner-text">Loading</div>
+          <div className="spinner-text">Loading...</div>
         </div>
       ) : (
         packages && (
@@ -733,7 +726,8 @@ if (!isBookingAllowed(journeyDate)) {
                     <div>
                       <p className="detail-label">Seats Available</p>
                       <p className="detail-value">{`${
-                        seatData?.layoutResult.seats.length - bookedStatus?.length
+                        seatData?.layoutResult.seats.length -
+                        bookedStatus?.length
                       } avilable`}</p>
                     </div>
 
@@ -745,839 +739,1021 @@ if (!isBookingAllowed(journeyDate)) {
               </div>
               {seatOpen && (
                 <>
-                <div className="bus-layout-details">
-                  {seatData && (
-                    <div className="bus-layout-Info">
-                      <div className="seat-hint">
-                        <p>Click on Seat to select/deselect</p>
-                      </div>
-
-                      <div className="bus-container">
-                        <div className="bus-row front-row">
-                          <div className="bus-side left">
-                            <GrSteps className="step-icon" />
-                          </div>
-                          <div className="bus-side right">
-                            <p>Driver</p>
-                          </div>
+                  <div className="bus-layout-details">
+                    {seatData && (
+                      <div className="bus-layout-Info">
+                        <div className="seat-hint">
+                          <p>Click on Seat to select/deselect</p>
                         </div>
 
-                        {seatData?.layoutResult.layout === "2x2"
-                          ? [...Array(rows)].map((_, rowIndex) => {
-                              const rowNumber = rowIndex + 1;
-                              const rowSeats = getSeatsForRow(rowNumber);
+                        <div className="bus-container">
+                          <div className="bus-row front-row">
+                            <div className="bus-side left">
+                              <GrSteps className="step-icon" />
+                            </div>
+                            <div className="bus-side right">
+                              <p>Driver</p>
+                            </div>
+                          </div>
 
-                              const isLastRow = rowNumber === rows;
-                              console.log(rowSeats)
-                              if (isLastRow) {
+                          {seatData?.layoutResult.layout === "2x2"  
+                            ? seatData?.layoutResult.seats.length === 41 ?
+                            
+                            
+                            [...Array(rows)].map((_, rowIndex) => {
+                                const rowNumber = rowIndex + 1;
+                                const rowSeats = getSeatsForRow(rowNumber);
+
+                                const isLastRow = rowNumber === rows;
+                                console.log(rowSeats);
+                                if (isLastRow) {
+                                  return (
+                                    <div
+                                      className="bus-row back-row"
+                                      key={rowNumber}
+                                    >
+                                      {rowSeats.map((seat) => {
+                                        const bookedSeat = booked.find(
+                                          (b) => b.id === seat._id
+                                        );
+                                        const seatStatus = bookedSeat
+                                          ? bookedSeat.status
+                                          : "available";
+
+                                        return (
+                                          <label
+                                            className={`seat ${
+                                              booked.find(
+                                                (b) => b.id === seat._id
+                                              )?.status === "booked"
+                                                ? "bookedseat"
+                                                : booked.find(
+                                                    (b) => b.id === seat._id
+                                                  )?.status === "locked"
+                                                ? "locked"
+                                                : ""
+                                            }`}
+                                            key={seat._id}
+                                          >
+                                            {seatStatus !== "booked" && (
+                                              <input
+                                                type="checkbox"
+                                                disabled={
+                                                  seatStatus === "locked"
+                                                }
+                                                checked={selectedSeats.some(
+                                                  (s) => s.id === seat._id
+                                                )}
+                                                onChange={() =>
+                                                  handleSeatChange(seat)
+                                                }
+                                              />
+                                            )}
+
+                                            <p className="booking-p">
+                                              {seat.number}
+                                            </p>
+                                          </label>
+                                        );
+                                      })}
+                                    </div>
+                                  );
+                                }
+
+                                const leftSide = rowSeats.slice(0, 2);
+                                const rightSide = rowSeats.slice(2, 4);
+
                                 return (
-                                  <div
-                                    className="bus-row back-row"
-                                    key={rowNumber}
-                                  >
-                                    {rowSeats.map((seat) => {
-                                      const bookedSeat = booked.find(
-                                        (b) => b.id === seat._id
-                                      );
-                                      const seatStatus = bookedSeat
-                                        ? bookedSeat.status
-                                        : "available";
+                                  <div className="bus-row" key={rowNumber}>
+                                    <div className="bus-side left">
+                                      {leftSide.map((seat) => {
+                                        const bookedSeat = booked.find(
+                                          (b) => b.id === seat._id
+                                        );
+                                        const seatStatus = bookedSeat
+                                          ? bookedSeat.status
+                                          : "available";
 
-                                      return (
-                                        <label
-                                          className={`seat ${
-                                            booked.find(
-                                              (b) => b.id === seat._id
-                                            )?.status === "booked"
-                                              ? "bookedseat"
-                                              : booked.find(
-                                                  (b) => b.id === seat._id
-                                                )?.status === "locked"
-                                              ? "locked"
-                                              : ""
-                                          }`}
-                                          key={seat._id}
-                                        >
-                                          {seatStatus !== "booked" && (
-                                            <input
-                                              type="checkbox"
-                                              disabled={seatStatus === "locked"}
-                                              checked={selectedSeats.some(
-                                                (s) => s.id === seat._id
-                                              )}
-                                              onChange={() =>
-                                                handleSeatChange(seat)
-                                              }
-                                            />
-                                          )}
+                                        return (
+                                          <label
+                                            className={`seat ${
+                                              booked.find(
+                                                (b) => b.id === seat._id
+                                              )?.status === "booked"
+                                                ? "bookedseat"
+                                                : booked.find(
+                                                    (b) => b.id === seat._id
+                                                  )?.status === "locked"
+                                                ? "locked"
+                                                : ""
+                                            }`}
+                                            key={seat._id}
+                                          >
+                                            {seatStatus !== "booked" && (
+                                              <input
+                                                type="checkbox"
+                                                disabled={
+                                                  seatStatus === "locked"
+                                                }
+                                                checked={selectedSeats.some(
+                                                  (s) => s.id === seat._id
+                                                )}
+                                                onChange={() =>
+                                                  handleSeatChange(seat)
+                                                }
+                                              />
+                                            )}
 
-                                          <p className="booking-p">
-                                            {seat.number}
-                                          </p>
-                                        </label>
-                                      );
-                                    })}
+                                            <p className="booking-p">
+                                              {seat.number}
+                                            </p>
+                                          </label>
+                                        );
+                                      })}
+                                    </div>
+                                    <div className="aisle" />
+                                    <div className="bus-side right">
+                                      {rightSide.map((seat) => {
+                                        const bookedSeat = booked.find(
+                                          (b) => b.id === seat._id
+                                        );
+                                        const seatStatus = bookedSeat
+                                          ? bookedSeat.status
+                                          : "available";
+
+                                        return (
+                                          <label
+                                            className={`seat ${
+                                              booked.find(
+                                                (b) => b.id === seat._id
+                                              )?.status === "booked"
+                                                ? "bookedseat"
+                                                : booked.find(
+                                                    (b) => b.id === seat._id
+                                                  )?.status === "locked"
+                                                ? "locked"
+                                                : ""
+                                            }`}
+                                            key={seat._id}
+                                          >
+                                            {seatStatus !== "booked" && (
+                                              <input
+                                                type="checkbox"
+                                                disabled={
+                                                  seatStatus === "locked"
+                                                }
+                                                checked={selectedSeats.some(
+                                                  (s) => s.id === seat._id
+                                                )}
+                                                onChange={() =>
+                                                  handleSeatChange(seat)
+                                                }
+                                              />
+                                            )}
+
+                                            <p className="booking-p">
+                                              {seat.number}
+                                            </p>
+                                          </label>
+                                        );
+                                      })}
+                                    </div>
                                   </div>
                                 );
-                              }
+                              }) :      [...Array(rows)].map((_, rowIndex) => {
+                                const rowNumber = rowIndex + 1;
+                                const rowSeats = getSeatsForRow(rowNumber);
 
-                              const leftSide = rowSeats.slice(0, 2);
-                              const rightSide = rowSeats.slice(2, 4);
+                                const isLastRow = rowNumber === rows;
+                                console.log(rowSeats);
+                                if (isLastRow) {
+                                  return (
+                                    <div
+                                      className="bus-row back-row"
+                                      key={rowNumber}
+                                    >
+                                      {rowSeats.map((seat) => {
+                                        const bookedSeat = booked.find(
+                                          (b) => b.id === seat._id
+                                        );
+                                        const seatStatus = bookedSeat
+                                          ? bookedSeat.status
+                                          : "available";
 
-                              return (
-                                <div className="bus-row" key={rowNumber}>
-                                  <div className="bus-side left">
-                                    {leftSide.map((seat) => {
-                                      const bookedSeat = booked.find(
-                                        (b) => b.id === seat._id
-                                      );
-                                      const seatStatus = bookedSeat
-                                        ? bookedSeat.status
-                                        : "available";
+                                        return (
+                                          <label
+                                            className={`seat ${
+                                              booked.find(
+                                                (b) => b.id === seat._id
+                                              )?.status === "booked"
+                                                ? "bookedseat"
+                                                : booked.find(
+                                                    (b) => b.id === seat._id
+                                                  )?.status === "locked"
+                                                ? "locked"
+                                                : ""
+                                            }`}
+                                            key={seat._id}
+                                          >
+                                            {seatStatus !== "booked" && (
+                                              <input
+                                                type="checkbox"
+                                                disabled={
+                                                  seatStatus === "locked"
+                                                }
+                                                checked={selectedSeats.some(
+                                                  (s) => s.id === seat._id
+                                                )}
+                                                onChange={() =>
+                                                  handleSeatChange(seat)
+                                                }
+                                              />
+                                            )}
 
-                                      return (
-                                        <label
-                                          className={`seat ${
-                                            booked.find(
-                                              (b) => b.id === seat._id
-                                            )?.status === "booked"
-                                              ? "bookedseat"
-                                              : booked.find(
-                                                  (b) => b.id === seat._id
-                                                )?.status === "locked"
-                                              ? "locked"
-                                              : ""
-                                          }`}
-                                          key={seat._id}
-                                        >
-                                          {seatStatus !== "booked" && (
-                                            <input
-                                              type="checkbox"
-                                              disabled={seatStatus === "locked"}
-                                              checked={selectedSeats.some(
-                                                (s) => s.id === seat._id
-                                              )}
-                                              onChange={() =>
-                                                handleSeatChange(seat)
-                                              }
-                                            />
-                                          )}
-
-                                          <p className="booking-p">
-                                            {seat.number}
-                                          </p>
-                                        </label>
-                                      );
-                                    })}
-                                  </div>
-                                  <div className="aisle" />
-                                  <div className="bus-side right">
-                                    {rightSide.map((seat) => {
-                                      const bookedSeat = booked.find(
-                                        (b) => b.id === seat._id
-                                      );
-                                      const seatStatus = bookedSeat
-                                        ? bookedSeat.status
-                                        : "available";
-
-                                      return (
-                                        <label
-                                          className={`seat ${
-                                            booked.find(
-                                              (b) => b.id === seat._id
-                                            )?.status === "booked"
-                                              ? "bookedseat"
-                                              : booked.find(
-                                                  (b) => b.id === seat._id
-                                                )?.status === "locked"
-                                              ? "locked"
-                                              : ""
-                                          }`}
-                                          key={seat._id}
-                                        >
-                                          {seatStatus !== "booked" && (
-                                            <input
-                                              type="checkbox"
-                                              disabled={seatStatus === "locked"}
-                                              checked={selectedSeats.some(
-                                                (s) => s.id === seat._id
-                                              )}
-                                              onChange={() =>
-                                                handleSeatChange(seat)
-                                              }
-                                            />
-                                          )}
-
-                                          <p className="booking-p">
-                                            {seat.number}
-                                          </p>
-                                        </label>
-                                      );
-                                    })}
-                                  </div>
-                                </div>
-                              );
-                            })
-                          : [...Array(rows)].map((_, rowIndex) => {
-                              const rowNumber = rowIndex + 1;
-                              const rowSeats = getSeatsForRow(rowNumber);
-
-                              const leftSide = rowSeats.slice(3);
-                              const rightSide = rowSeats.slice(0, 3);
-
-                              return (
-                                <div className="bus-row" key={rowNumber}>
-                                  <div className="bus-side left">
-                                    {leftSide.map((seat) => {
-                                      const bookedSeat = booked.find(
-                                        (b) => b.id === seat._id
-                                      );
-                                      const seatStatus = bookedSeat
-                                        ? bookedSeat.status
-                                        : "available";
-
-                                      return (
-                                        <label
-                                          className={`seat ${
-                                            booked.find(
-                                              (b) => b.id === seat._id
-                                            )?.status === "booked"
-                                              ? "bookedseat"
-                                              : booked.find(
-                                                  (b) => b.id === seat._id
-                                                )?.status === "locked"
-                                              ? "locked"
-                                              : ""
-                                          }`}
-                                          key={seat._id}
-                                        >
-                                          {seatStatus !== "booked" && (
-                                            <input
-                                              type="checkbox"
-                                              disabled={seatStatus === "locked"}
-                                              checked={selectedSeats.some(
-                                                (s) => s.id === seat._id
-                                              )}
-                                              onChange={() =>
-                                                handleSeatChange(seat)
-                                              }
-                                            />
-                                          )}
-                                          <p className="booking-p">
-                                            {seat.number}
-                                          </p>
-                                        </label>
-                                      );
-                                    })}
-                                  </div>
-                                  <div className="aisle" />
-                                  <div className="bus-side right">
-                                    {rightSide.map((seat) => {
-                                      const bookedSeat = booked.find(
-                                        (b) => b.id === seat._id
-                                      );
-                                      const seatStatus = bookedSeat
-                                        ? bookedSeat.status
-                                        : "available";
-
-                                      return (
-                                        <label
-                                          className={`seat ${
-                                            booked.find(
-                                              (b) => b.id === seat._id
-                                            )?.status === "booked"
-                                              ? "bookedseat"
-                                              : booked.find(
-                                                  (b) => b.id === seat._id
-                                                )?.status === "locked"
-                                              ? "locked"
-                                              : ""
-                                          }`}
-                                          key={seat._id}
-                                        >
-                                          {seatStatus !== "booked" && (
-                                            <input
-                                              type="checkbox"
-                                              disabled={seatStatus === "locked"}
-                                              checked={selectedSeats.some(
-                                                (s) => s.id === seat._id
-                                              )}
-                                              onChange={() =>
-                                                handleSeatChange(seat)
-                                              }
-                                            />
-                                          )}
-
-                                          <p className="booking-p">
-                                            {seat.number}
-                                          </p>
-                                        </label>
-                                      );
-                                    })}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                      </div>
-                      <div className="color-variant">
-                        <div className="legend-item">
-                          <span className="legend-box available"></span>
-                          <p>Available</p>
-                        </div>
-                        <div className="legend-item">
-                          <span className="legend-box booked"></span>
-                          <p>Booked</p>
-                        </div>
-                        <div className="legend-item">
-                          <span className="legend-box locked"></span>
-                          <p>Locked</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  <div className="passenger-details">
-                    <div className="seat-hint">
-                      <p>Booking Details</p>
-                    </div>
-                    <div className="passenger-details-form">
-                      <div className="pd-details">
-                        <div className="seat-hint">
-                          <p
-                            style={{
-                              color: "#1c63c4",
-                            }}
-                          >
-                            Passenger Details :
-                          </p>
-                        </div>
-                        <div className="required-form">
-                          <div className="input-field">
-                            <label>Mobile Number *</label>
-                            <input
-                              type="text"
-                              required
-                              name="mobileNumber"
-                              value={customerDetails.mobileNumber}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              onKeyDown={(e) => {
-                                handleDown(e);
-
-                                const allowedKeys = [
-                                  "Backspace",
-                                  "ArrowLeft",
-                                  "ArrowRight",
-                                  "Delete",
-                                  "Tab",
-                                ];
-                                const allowedCharPattern = /^[0-9-]$/;
-
-                                // Check if the pressed key is not allowed
-                                if (
-                                  !allowedKeys.includes(e.key) &&
-                                  !allowedCharPattern.test(e.key)
-                                ) {
-                                  e.preventDefault(); // Prevent the default action of the disallowed key
+                                            <p className="booking-p">
+                                              {seat.number}
+                                            </p>
+                                          </label>
+                                        );
+                                      })}
+                                    </div>
+                                  );
                                 }
-                              }}
-                              placeholder="Enter Your Mobile Number *"
-                              maxLength={10}
-                            />
-                            {error.mobileNumber && (
-                              <p className="error-text">{error.mobileNumber}</p>
-                            )}
+
+                                const leftSide = rowSeats.slice(0, 2);
+                                const rightSide = rowSeats.slice(2, 4);
+
+                                return (
+                                  <div className="bus-row" key={rowNumber}>
+                                    <div className="bus-side left">
+                                      {leftSide.map((seat) => {
+                                        const bookedSeat = booked.find(
+                                          (b) => b.id === seat._id
+                                        );
+                                        const seatStatus = bookedSeat
+                                          ? bookedSeat.status
+                                          : "available";
+
+                                        return (
+                                          <label
+                                            className={`seat ${
+                                              booked.find(
+                                                (b) => b.id === seat._id
+                                              )?.status === "booked"
+                                                ? "bookedseat"
+                                                : booked.find(
+                                                    (b) => b.id === seat._id
+                                                  )?.status === "locked"
+                                                ? "locked"
+                                                : ""
+                                            }`}
+                                            key={seat._id}
+                                          >
+                                            {seatStatus !== "booked" && (
+                                              <input
+                                                type="checkbox"
+                                                disabled={
+                                                  seatStatus === "locked"
+                                                }
+                                                checked={selectedSeats.some(
+                                                  (s) => s.id === seat._id
+                                                )}
+                                                onChange={() =>
+                                                  handleSeatChange(seat)
+                                                }
+                                              />
+                                            )}
+
+                                            <p className="booking-p">
+                                              {seat.number}
+                                            </p>
+                                          </label>
+                                        );
+                                      })}
+                                    </div>
+                                    <div className="aisle" />
+                                    <div className="bus-side right">
+                                      {rightSide.map((seat) => {
+                                        const bookedSeat = booked.find(
+                                          (b) => b.id === seat._id
+                                        );
+                                        const seatStatus = bookedSeat
+                                          ? bookedSeat.status
+                                          : "available";
+
+                                        return (
+                                          <label
+                                            className={`seat ${
+                                              booked.find(
+                                                (b) => b.id === seat._id
+                                              )?.status === "booked"
+                                                ? "bookedseat"
+                                                : booked.find(
+                                                    (b) => b.id === seat._id
+                                                  )?.status === "locked"
+                                                ? "locked"
+                                                : ""
+                                            }`}
+                                            key={seat._id}
+                                          >
+                                            {seatStatus !== "booked" && (
+                                              <input
+                                                type="checkbox"
+                                                disabled={
+                                                  seatStatus === "locked"
+                                                }
+                                                checked={selectedSeats.some(
+                                                  (s) => s.id === seat._id
+                                                )}
+                                                onChange={() =>
+                                                  handleSeatChange(seat)
+                                                }
+                                              />
+                                            )}
+
+                                            <p className="booking-p">
+                                              {seat.number}
+                                            </p>
+                                          </label>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                );
+                              })
+                            : [...Array(rows)].map((_, rowIndex) => {
+                                const rowNumber = rowIndex + 1;
+                                const rowSeats = getSeatsForRow(rowNumber);
+
+                                const leftSide = rowSeats.slice(3);
+                                const rightSide = rowSeats.slice(0, 3);
+
+                                return (
+                                  <div className="bus-row" key={rowNumber}>
+                                    <div className="bus-side left">
+                                      {leftSide.map((seat) => {
+                                        const bookedSeat = booked.find(
+                                          (b) => b.id === seat._id
+                                        );
+                                        const seatStatus = bookedSeat
+                                          ? bookedSeat.status
+                                          : "available";
+
+                                        return (
+                                          <label
+                                            className={`seat ${
+                                              booked.find(
+                                                (b) => b.id === seat._id
+                                              )?.status === "booked"
+                                                ? "bookedseat"
+                                                : booked.find(
+                                                    (b) => b.id === seat._id
+                                                  )?.status === "locked"
+                                                ? "locked"
+                                                : ""
+                                            }`}
+                                            key={seat._id}
+                                          >
+                                            {seatStatus !== "booked" && (
+                                              <input
+                                                type="checkbox"
+                                                disabled={
+                                                  seatStatus === "locked"
+                                                }
+                                                checked={selectedSeats.some(
+                                                  (s) => s.id === seat._id
+                                                )}
+                                                onChange={() =>
+                                                  handleSeatChange(seat)
+                                                }
+                                              />
+                                            )}
+                                            <p className="booking-p">
+                                              {seat.number}
+                                            </p>
+                                          </label>
+                                        );
+                                      })}
+                                    </div>
+                                    <div className="aisle" />
+                                    <div className="bus-side right">
+                                      {rightSide.map((seat) => {
+                                        const bookedSeat = booked.find(
+                                          (b) => b.id === seat._id
+                                        );
+                                        const seatStatus = bookedSeat
+                                          ? bookedSeat.status
+                                          : "available";
+
+                                        return (
+                                          <label
+                                            className={`seat ${
+                                              booked.find(
+                                                (b) => b.id === seat._id
+                                              )?.status === "booked"
+                                                ? "bookedseat"
+                                                : booked.find(
+                                                    (b) => b.id === seat._id
+                                                  )?.status === "locked"
+                                                ? "locked"
+                                                : ""
+                                            }`}
+                                            key={seat._id}
+                                          >
+                                            {seatStatus !== "booked" && (
+                                              <input
+                                                type="checkbox"
+                                                disabled={
+                                                  seatStatus === "locked"
+                                                }
+                                                checked={selectedSeats.some(
+                                                  (s) => s.id === seat._id
+                                                )}
+                                                onChange={() =>
+                                                  handleSeatChange(seat)
+                                                }
+                                              />
+                                            )}
+
+                                            <p className="booking-p">
+                                              {seat.number}
+                                            </p>
+                                          </label>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                        </div>
+                        <div className="color-variant">
+                          <div className="legend-item">
+                            <span className="legend-box available"></span>
+                            <p>Available</p>
                           </div>
-                          <div className="input-field">
-                            <label>Email</label>
-                            <input
-                              type="text"
-                              placeholder="Enter Your Email"
-                              name="email"
-                              value={customerDetails.email}
-                              onChange={handleChange}
-                              onKeyDown={(e) => {
-                                handleDown(e);
-
-                                const allowedKeys = [
-                                  "Backspace",
-                                  "ArrowLeft",
-                                  "ArrowRight",
-                                  "Delete",
-                                  "Tab",
-                                ];
-                                const allowedCharPattern = /^[0-9a-z._@-]$/;
-
-                                // Check if the pressed key is not allowed
-                                if (
-                                  !allowedKeys.includes(e.key) &&
-                                  !allowedCharPattern.test(e.key)
-                                ) {
-                                  e.preventDefault(); // Prevent the default action of the disallowed key
-                                }
-                              }}
-                            />
-                            {error.email && (
-                              <p className="error-text">{error.email}</p>
-                            )}
+                          <div className="legend-item">
+                            <span className="legend-box booked"></span>
+                            <p>Booked</p>
+                          </div>
+                          <div className="legend-item">
+                            <span className="legend-box locked"></span>
+                            <p>Locked</p>
                           </div>
                         </div>
                       </div>
-                      <div className="id-proof">
-                        <div className="seat-hint">
-                          <p
-                            style={{
-                              color: "#1c63c4",
-                            }}
-                          >
-                            Select Id Card Information :
-                          </p>
-                        </div>
-                        <div className="required-form">
-                          <div className="input-field">
-                            <label>ID Proof *</label>
-                            <select
-                              required
-                              defaultValue=""
-                              name="proof"
-                              value={customerDetails.proof}
-                              onBlur={handleBlur}
-                              onChange={handleProofChange}
-                            >
-                              <option value="" disabled>
-                                Select ID Proof *
-                              </option>
-                              <option value="aadhar">Aadhar Card</option>
-                              <option value="driving">Driving License</option>
-                              <option value="voter">Voter ID</option>
-                            </select>
-                            {error.proof && (
-                              <p className="error-text">{error.proof}</p>
-                            )}
-                          </div>
-                          <div className="input-field">
-                            <label>ID Proof Number *</label>
-                            <input
-                              type="text"
-                              name="proofIdNumber"
-                              value={customerDetails.proofIdNumber}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              maxLength={30}
-                              onKeyDown={(e) => {
-                                handleDown(e);
-
-                                const allowedKeys = [
-                                  "Backspace",
-                                  "ArrowLeft",
-                                  "ArrowRight",
-                                  "Delete",
-                                  "Tab",
-                                ];
-                                const allowedCharPattern = /^[0-9a-zA-Z-]$/;
-
-                                // Check if the pressed key is not allowed
-                                if (
-                                  !allowedKeys.includes(e.key) &&
-                                  !allowedCharPattern.test(e.key)
-                                ) {
-                                  e.preventDefault(); // Prevent the default action of the disallowed key
-                                }
-                              }}
-                              placeholder="Enter Your ID Proof Number *"
-                            />
-                            {error.proofIdNumber && (
-                              <p className="error-text">
-                                {error.proofIdNumber}
-                              </p>
-                            )}
-                          </div>
-                        </div>
+                    )}
+                    <div className="passenger-details">
+                      <div className="seat-hint">
+                        <p>Booking Details</p>
                       </div>
-                      <div className="seat-proof">
-                        <div>
+                      <div className="passenger-details-form">
+                        <div className="pd-details">
                           <div className="seat-hint">
                             <p
                               style={{
                                 color: "#1c63c4",
                               }}
                             >
-                              Select seat Number :
+                              Passenger Details :
                             </p>
                           </div>
-                          <div className="seat-number">
-                            {selectedSeats.map((value, index) => (
-                              <p key={index}>{value.number}</p>
+                          <div className="required-form">
+                            <div className="input-field">
+                              <label>Mobile Number *</label>
+                              <input
+                                type="text"
+                                required
+                                name="mobileNumber"
+                                value={customerDetails.mobileNumber}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                onKeyDown={(e) => {
+                                  handleDown(e);
+
+                                  const allowedKeys = [
+                                    "Backspace",
+                                    "ArrowLeft",
+                                    "ArrowRight",
+                                    "Delete",
+                                    "Tab",
+                                  ];
+                                  const allowedCharPattern = /^[0-9-]$/;
+
+                                  // Check if the pressed key is not allowed
+                                  if (
+                                    !allowedKeys.includes(e.key) &&
+                                    !allowedCharPattern.test(e.key)
+                                  ) {
+                                    e.preventDefault(); // Prevent the default action of the disallowed key
+                                  }
+                                }}
+                                placeholder="Enter Your Mobile Number *"
+                                maxLength={10}
+                              />
+                              {error.mobileNumber && (
+                                <p className="error-text">
+                                  {error.mobileNumber}
+                                </p>
+                              )}
+                            </div>
+                            <div className="input-field">
+                              <label>Email</label>
+                              <input
+                                type="text"
+                                placeholder="Enter Your Email"
+                                name="email"
+                                value={customerDetails.email}
+                                onChange={handleChange}
+                                onKeyDown={(e) => {
+                                  handleDown(e);
+
+                                  const allowedKeys = [
+                                    "Backspace",
+                                    "ArrowLeft",
+                                    "ArrowRight",
+                                    "Delete",
+                                    "Tab",
+                                  ];
+                                  const allowedCharPattern = /^[0-9a-z._@-]$/;
+
+                                  // Check if the pressed key is not allowed
+                                  if (
+                                    !allowedKeys.includes(e.key) &&
+                                    !allowedCharPattern.test(e.key)
+                                  ) {
+                                    e.preventDefault(); // Prevent the default action of the disallowed key
+                                  }
+                                }}
+                              />
+                              {error.email && (
+                                <p className="error-text">{error.email}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="id-proof">
+                          <div className="seat-hint">
+                            <p
+                              style={{
+                                color: "#1c63c4",
+                              }}
+                            >
+                              Select Id Card Information :
+                            </p>
+                          </div>
+                          <div className="required-form">
+                            <div className="input-field">
+                              <label>ID Proof *</label>
+                              <select
+                                required
+                                defaultValue=""
+                                name="proof"
+                                value={customerDetails.proof}
+                                onBlur={handleBlur}
+                                onChange={handleProofChange}
+                              >
+                                <option value="" disabled>
+                                  Select ID Proof *
+                                </option>
+                                <option value="aadhar">Aadhar Card</option>
+                                <option value="driving">Driving License</option>
+                                <option value="voter">Voter ID</option>
+                              </select>
+                              {error.proof && (
+                                <p className="error-text">{error.proof}</p>
+                              )}
+                            </div>
+                            <div className="input-field">
+                              <label>ID Proof Number *</label>
+                              <input
+                                type="text"
+                                name="proofIdNumber"
+                                value={customerDetails.proofIdNumber}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                maxLength={30}
+                                onKeyDown={(e) => {
+                                  handleDown(e);
+
+                                  const allowedKeys = [
+                                    "Backspace",
+                                    "ArrowLeft",
+                                    "ArrowRight",
+                                    "Delete",
+                                    "Tab",
+                                  ];
+                                  const allowedCharPattern = /^[0-9a-zA-Z-]$/;
+
+                                  // Check if the pressed key is not allowed
+                                  if (
+                                    !allowedKeys.includes(e.key) &&
+                                    !allowedCharPattern.test(e.key)
+                                  ) {
+                                    e.preventDefault(); // Prevent the default action of the disallowed key
+                                  }
+                                }}
+                                placeholder="Enter Your ID Proof Number *"
+                              />
+                              {error.proofIdNumber && (
+                                <p className="error-text">
+                                  {error.proofIdNumber}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="seat-proof">
+                          <div>
+                            <div className="seat-hint">
+                              <p
+                                style={{
+                                  color: "#1c63c4",
+                                }}
+                              >
+                                Select seat Number :
+                              </p>
+                            </div>
+                            <div className="seat-number">
+                              {selectedSeats.map((value, index) => (
+                                <p key={index}>{value.number}</p>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="seat-hint">
+                              <p
+                                style={{
+                                  color: "#1c63c4",
+                                }}
+                              >
+                                Enter a Passenger Details :
+                              </p>
+                            </div>
+                            {selectedSeats.map((seat, index) => (
+                              <div className="required-forms" key={seat.id}>
+                                <div className="input-field">
+                                  <label>Name *</label>
+                                  <input
+                                    type="text"
+                                    required
+                                    placeholder="Enter Your Name *"
+                                    maxLength={20}
+                                    name={`name`}
+                                    onChange={(e) =>
+                                      handleDetailsChange(
+                                        seat.id,
+                                        e.target.name,
+                                        e.target.value
+                                      )
+                                    }
+                                    onKeyDown={(e) => {
+                                      handleDown(e);
+
+                                      const allowedKeys = [
+                                        "Backspace",
+                                        "ArrowLeft",
+                                        "ArrowRight",
+                                        "Delete",
+                                        "Tab",
+                                        " ",
+                                      ];
+                                      const allowedCharPattern = /^[a-zA-Z-]$/;
+
+                                      // Check if the pressed key is not allowed
+                                      if (
+                                        !allowedKeys.includes(e.key) &&
+                                        !allowedCharPattern.test(e.key)
+                                      ) {
+                                        e.preventDefault(); // Prevent the default action of the disallowed key
+                                      }
+                                    }}
+                                  />
+                                  {formErrors[seat.id]?.name && (
+                                    <span className="error-text">
+                                      {formErrors[seat.id].name}
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="input-fields">
+                                  <label>Age *</label>
+                                  <input
+                                    type="text"
+                                    placeholder="Enter Your Age"
+                                    required
+                                    name={`age`}
+                                    maxLength={3}
+                                    onChange={(e) =>
+                                      handleDetailsChange(
+                                        seat.id,
+                                        e.target.name,
+                                        e.target.value
+                                      )
+                                    }
+                                    onKeyDown={(e) => {
+                                      handleDown(e);
+
+                                      const allowedKeys = [
+                                        "Backspace",
+                                        "ArrowLeft",
+                                        "ArrowRight",
+                                        "Delete",
+                                        "Tab",
+                                        " ",
+                                      ];
+                                      const allowedCharPattern = /^[0-9-]$/;
+
+                                      // Check if the pressed key is not allowed
+                                      if (
+                                        !allowedKeys.includes(e.key) &&
+                                        !allowedCharPattern.test(e.key)
+                                      ) {
+                                        e.preventDefault(); // Prevent the default action of the disallowed key
+                                      }
+                                    }}
+                                  />
+
+                                  {formErrors[seat.id]?.age && (
+                                    <span className="error-text">
+                                      {formErrors[seat.id].age}
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="input-fields">
+                                  <label>Gender *</label>
+                                  <select
+                                    required
+                                    name={`gender`}
+                                    defaultValue=""
+                                    value={seat.gender || ""}
+                                    onChange={(e) =>
+                                      handleDetailsChange(
+                                        seat.id,
+                                        e.target.name,
+                                        e.target.value
+                                      )
+                                    }
+                                  >
+                                    <option value="" disabled>
+                                      Gender *
+                                    </option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="transgender">
+                                      Transgender
+                                    </option>
+                                  </select>
+                                  {formErrors[seat.id]?.gender && (
+                                    <span className="error-text">
+                                      {formErrors[seat.id].gender}
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="input-fields">
+                                  <label> Group *</label>
+                                  <select
+                                    required
+                                    name={`agegroup`}
+                                    defaultValue=""
+                                    disabled
+                                    value={seat.agegroup || ""}
+                                  >
+                                    <option value="" disabled>
+                                      Group *
+                                    </option>
+                                    <option value="child">Child</option>
+                                    <option value="adult">Adult</option>
+                                    <option value="senior-citizen">
+                                      Senior Citizen
+                                    </option>
+                                  </select>
+                                </div>
+
+                                <div className="input-fields">
+                                  <label>Price *</label>
+                                  <input
+                                    type="text"
+                                    disabled
+                                    required
+                                    placeholder={`Seat: ${seat.number}`}
+                                    name={`price-${seat.id}`}
+                                    value={`price:${seat.price || 900}(Seat: ${
+                                      seat.number
+                                    })`}
+                                    readOnly
+                                  />
+                                </div>
+                              </div>
                             ))}
                           </div>
                         </div>
-                        <div>
+                        <div
+                          className="booking-summary"
+                          style={{
+                            borderRadius: "10px",
+                            padding: "20px",
+                            backgroundColor: "#f9f9f9",
+                          }}
+                        >
                           <div className="seat-hint">
                             <p
                               style={{
                                 color: "#1c63c4",
                               }}
                             >
-                              Enter a Passenger Details :
+                              Booking Summary :
                             </p>
                           </div>
-                          {selectedSeats.map((seat, index) => (
-                            <div className="required-forms" key={seat.id}>
-                              <div className="input-field">
-                                <label>Name *</label>
-                                <input
-                                  type="text"
-                                  required
-                                  placeholder="Enter Your Name *"
-                                  maxLength={20}
-                                  name={`name`}
-                                  onChange={(e) =>
-                                    handleDetailsChange(
-                                      seat.id,
-                                      e.target.name,
-                                      e.target.value
-                                    )
-                                  }
-                                  onKeyDown={(e) => {
-                                    handleDown(e);
 
-                                    const allowedKeys = [
-                                      "Backspace",
-                                      "ArrowLeft",
-                                      "ArrowRight",
-                                      "Delete",
-                                      "Tab",
-                                      " ",
-                                    ];
-                                    const allowedCharPattern = /^[a-zA-Z-]$/;
-
-                                    // Check if the pressed key is not allowed
-                                    if (
-                                      !allowedKeys.includes(e.key) &&
-                                      !allowedCharPattern.test(e.key)
-                                    ) {
-                                      e.preventDefault(); // Prevent the default action of the disallowed key
-                                    }
-                                  }}
-                                />
-                                {formErrors[seat.id]?.name && (
-                                  <span className="error-text">
-                                    {formErrors[seat.id].name}
-                                  </span>
-                                )}
+                          {selectedSeats.map((seat) => (
+                            <div
+                              key={seat.id}
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "10px 0",
+                                borderBottom: "1px solid #eee",
+                              }}
+                            >
+                              <div>
+                                <strong>{seat.name}</strong> ({seat.agegroup})
+                                <br />
+                                Seat: {seat.number}
                               </div>
-
-                              <div className="input-fields">
-                                <label>Age *</label>
-                                <input
-                                  type="text"
-                                  placeholder="Enter Your Age"
-                                  required
-                                  name={`age`}
-                                  maxLength={3}
-                                  onChange={(e) =>
-                                    handleDetailsChange(
-                                      seat.id,
-                                      e.target.name,
-                                      e.target.value
-                                    )
-                                  }
-                                  onKeyDown={(e) => {
-                                    handleDown(e);
-
-                                    const allowedKeys = [
-                                      "Backspace",
-                                      "ArrowLeft",
-                                      "ArrowRight",
-                                      "Delete",
-                                      "Tab",
-                                      " ",
-                                    ];
-                                    const allowedCharPattern = /^[0-9-]$/;
-
-                                    // Check if the pressed key is not allowed
-                                    if (
-                                      !allowedKeys.includes(e.key) &&
-                                      !allowedCharPattern.test(e.key)
-                                    ) {
-                                      e.preventDefault(); // Prevent the default action of the disallowed key
-                                    }
-                                  }}
-                                />
-
-                                {formErrors[seat.id]?.age && (
-                                  <span className="error-text">
-                                    {formErrors[seat.id].age}
-                                  </span>
-                                )}
-                              </div>
-
-                              <div className="input-fields">
-                                <label>Gender *</label>
-                                <select
-                                  required
-                                  name={`gender`}
-                                  defaultValue=""
-                                  value={seat.gender || ""}
-                                  onChange={(e) =>
-                                    handleDetailsChange(
-                                      seat.id,
-                                      e.target.name,
-                                      e.target.value
-                                    )
-                                  }
-                                >
-                                  <option value="" disabled>
-                                    Gender *
-                                  </option>
-                                  <option value="male">Male</option>
-                                  <option value="female">Female</option>
-                                  <option value="transgender">
-                                    Transgender
-                                  </option>
-                                </select>
-                                {formErrors[seat.id]?.gender && (
-                                  <span className="error-text">
-                                    {formErrors[seat.id].gender}
-                                  </span>
-                                )}
-                              </div>
-
-                              <div className="input-fields">
-                                <label> Group *</label>
-                                <select
-                                  required
-                                  name={`agegroup`}
-                                  defaultValue=""
-                                  disabled
-                                  value={seat.agegroup || ""}
-                                >
-                                  <option value="" disabled>
-                                    Group *
-                                  </option>
-                                  <option value="child">Child</option>
-                                  <option value="adult">Adult</option>
-                                  <option value="senior-citizen">Senior Citizen</option>
-                                </select>
-                              </div>
-
-                              <div className="input-fields">
-                                <label>Price *</label>
-                                <input
-                                  type="text"
-                                  disabled
-                                  required
-                                  placeholder={`Seat: ${seat.number}`}
-                                  name={`price-${seat.id}`}
-                                  value={`price:${seat.price || 900}(Seat: ${
-                                    seat.number
-                                  })`}
-                                  readOnly
-                                />
+                              <div
+                                style={{ fontWeight: "bold", color: "#333" }}
+                              >
+                                ₹{seat.price}
                               </div>
                             </div>
                           ))}
-                        </div>
-                      </div>
-                      <div
-                        className="booking-summary"
-                        style={{
-                          borderRadius: "10px",
-                          padding: "20px",
-                          backgroundColor: "#f9f9f9",
-                        }}
-                      >
-                        <div className="seat-hint">
-                          <p
-                            style={{
-                              color: "#1c63c4",
-                            }}
-                          >
-                            Booking Summary :
-                          </p>
-                        </div>
 
-                        {selectedSeats.map((seat) => (
                           <div
-                            key={seat.id}
+                            className="total-amount"
                             style={{
                               display: "flex",
                               justifyContent: "space-between",
-                              padding: "10px 0",
-                              borderBottom: "1px solid #eee",
+                              marginTop: "20px",
+                              fontSize: "18px",
+                              fontWeight: "bold",
+                              color: "green",
                             }}
                           >
-                            <div>
-                              <strong>{seat.name}</strong> ({seat.agegroup})
-                              <br />
-                              Seat: {seat.number}
-                            </div>
-                            <div style={{ fontWeight: "bold", color: "#333" }}>
-                              ₹{seat.price}
-                            </div>
+                            <p>Total:</p>
+                            <p>₹{totalPrice}</p>
                           </div>
-                        ))}
+                        </div>
+                        <div className="booking-confirmation">
+                          <div className="terms-container">
+                            <input
+                              type="checkbox"
+                              onChange={() => setTerm(!term)}
+                            />
+                            <label className="terms-label">
+                              I accept the{" "}
+                              <span
+                                onClick={() => {
+                                  navigate("/terms");
+                                }}
+                                style={{
+                                  color: "blue",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                Terms and Conditions
+                              </span>
+                            </label>
+                          </div>
 
-                        <div
-                          className="total-amount"
+                          <button
+                            className="confirm-button"
+                            onClick={handleSubmit}
+                            disabled={loading}
+                          >
+                            {loading ? "Booking ..." : "Confirm Booking"}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="bus-trip-note section1-card1s">
+                        <p>Note*</p>
+                        <ul
+                          className="about-us-list"
                           style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            marginTop: "20px",
-                            fontSize: "18px",
-                            fontWeight: "bold",
-                            color: "green",
+                            gap: "2px",
+                            flexDirection: "column",
+                            width: "100%",
                           }}
                         >
-                          <p>Total:</p>
-                          <p>₹{totalPrice}</p>
-                        </div>
-                      </div>
-                      <div className="booking-confirmation">
-                        <div className="terms-container">
-                          <input
-                            type="checkbox"
-                            onChange={() => setTerm(!term)}
-                          />
-                          <label className="terms-label">
-                            I accept the <span onClick={()=>{
-                              navigate("/terms")
-                            }}
+                          <li
+                            className="about-us-list-1"
                             style={{
-                              color:"blue",
-                              cursor:"pointer"
-                            }}>
-                              Terms and Conditions
-                              </span>
-                          </label>
-                        </div>
-
-                        <button
-                          className="confirm-button"
-                          onClick={handleSubmit}
-                          disabled={loading}
-                        >
-                          {loading ? "Booking ..." : "Confirm Booking"}
-                        </button>
+                              width: "100%",
+                            }}
+                          >
+                            <span className="about-us-listicons">
+                              <svg
+                                aria-hidden="true"
+                                className="svg-inline--fa fa-check fa-w-14"
+                                viewBox="0 0 448 512"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path d="M400 480H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h352c26.51 0 48 21.49 48 48v352c0 26.51-21.49 48-48 48zm-204.686-98.059l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.248-16.379-6.249-22.628 0L184 302.745l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.25 16.379 6.25 22.628.001z"></path>
+                              </svg>
+                            </span>
+                            <span className="point-content">
+                              Seats will be locked once you proceed to payment.
+                            </span>
+                          </li>
+                          <li
+                            className="about-us-list-1"
+                            style={{
+                              width: "100%",
+                            }}
+                          >
+                            <span className="about-us-listicons">
+                              <svg
+                                aria-hidden="true"
+                                className="svg-inline--fa fa-check fa-w-14"
+                                viewBox="0 0 448 512"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path d="M400 480H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h352c26.51 0 48 21.49 48 48v352c0 26.51-21.49 48-48 48zm-204.686-98.059l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.248-16.379-6.249-22.628 0L184 302.745l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.25 16.379 6.25 22.628.001z"></path>
+                              </svg>
+                            </span>
+                            <span className="point-content">
+                              You have 20 minutes to complete the payment.
+                            </span>
+                          </li>
+                          <li
+                            className="about-us-list-1"
+                            style={{
+                              width: "100%",
+                            }}
+                          >
+                            <span className="about-us-listicons">
+                              <svg
+                                aria-hidden="true"
+                                className="svg-inline--fa fa-check fa-w-14"
+                                viewBox="0 0 448 512"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path d="M400 480H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h352c26.51 0 48 21.49 48 48v352c0 26.51-21.49 48-48 48zm-204.686-98.059l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.248-16.379-6.249-22.628 0L184 302.745l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.25 16.379 6.25 22.628.001z"></path>
+                              </svg>
+                            </span>
+                            <span className="point-content">
+                              If payment is not completed within 20 minutes, the
+                              seats will be automatically released.
+                            </span>
+                          </li>
+                          <li
+                            className="about-us-list-1"
+                            style={{
+                              width: "100%",
+                            }}
+                          >
+                            <span className="about-us-listicons">
+                              <svg
+                                aria-hidden="true"
+                                className="svg-inline--fa fa-check fa-w-14"
+                                viewBox="0 0 448 512"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path d="M400 480H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h352c26.51 0 48 21.49 48 48v352c0 26.51-21.49 48-48 48zm-204.686-98.059l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.248-16.379-6.249-22.628 0L184 302.745l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.25 16.379 6.25 22.628.001z"></path>
+                              </svg>
+                            </span>
+                            <span className="point-content">
+                              On successful payment, your booking will be
+                              confirmed.
+                            </span>
+                          </li>
+                          <li
+                            className="about-us-list-1"
+                            style={{
+                              width: "100%",
+                            }}
+                          >
+                            <span className="about-us-listicons">
+                              <svg
+                                aria-hidden="true"
+                                className="svg-inline--fa fa-check fa-w-14"
+                                viewBox="0 0 448 512"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path d="M400 480H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h352c26.51 0 48 21.49 48 48v352c0 26.51-21.49 48-48 48zm-204.686-98.059l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.248-16.379-6.249-22.628 0L184 302.745l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.25 16.379 6.25 22.628.001z"></path>
+                              </svg>
+                            </span>
+                            <span className="point-content">
+                              If you close the payment window or cancel, your
+                              seats will be unlocked.
+                            </span>
+                          </li>
+                        </ul>
                       </div>
                     </div>
-                                 <div className="bus-trip-note section1-card1s">
-                                  <p>Note*</p>
-                                  <ul
-            className="about-us-list"
-            style={{
-              gap: "2px",
-              flexDirection: "column",
-              width: "100%",
-            }}
-          >
-            <li
-              className="about-us-list-1"
-              style={{
-                width: "100%",
-              }}
-            >
-              <span className="about-us-listicons">
-                <svg
-                  aria-hidden="true"
-                  className="svg-inline--fa fa-check fa-w-14"
-                  viewBox="0 0 448 512"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M400 480H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h352c26.51 0 48 21.49 48 48v352c0 26.51-21.49 48-48 48zm-204.686-98.059l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.248-16.379-6.249-22.628 0L184 302.745l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.25 16.379 6.25 22.628.001z"></path>
-                </svg>
-              </span>
-              <span className="point-content">
-               Seats will be locked once you proceed to payment.
-              </span>
-            </li>
-            <li
-              className="about-us-list-1"
-              style={{
-                width: "100%",
-              }}
-            >
-              <span className="about-us-listicons">
-                <svg
-                  aria-hidden="true"
-                  className="svg-inline--fa fa-check fa-w-14"
-                  viewBox="0 0 448 512"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M400 480H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h352c26.51 0 48 21.49 48 48v352c0 26.51-21.49 48-48 48zm-204.686-98.059l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.248-16.379-6.249-22.628 0L184 302.745l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.25 16.379 6.25 22.628.001z"></path>
-                </svg>
-              </span>
-              <span className="point-content">
-                You have 20 minutes to complete the payment.
-              </span>
-            </li>
-             <li
-              className="about-us-list-1"
-              style={{
-                width: "100%",
-              }}
-            >
-              <span className="about-us-listicons">
-                <svg
-                  aria-hidden="true"
-                  className="svg-inline--fa fa-check fa-w-14"
-                  viewBox="0 0 448 512"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M400 480H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h352c26.51 0 48 21.49 48 48v352c0 26.51-21.49 48-48 48zm-204.686-98.059l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.248-16.379-6.249-22.628 0L184 302.745l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.25 16.379 6.25 22.628.001z"></path>
-                </svg>
-              </span>
-              <span className="point-content">
-                If payment is not completed within 20 minutes, the seats will be automatically released.
-              </span>
-            </li>
-             <li
-              className="about-us-list-1"
-              style={{
-                width: "100%",
-              }}
-            >
-              <span className="about-us-listicons">
-                <svg
-                  aria-hidden="true"
-                  className="svg-inline--fa fa-check fa-w-14"
-                  viewBox="0 0 448 512"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M400 480H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h352c26.51 0 48 21.49 48 48v352c0 26.51-21.49 48-48 48zm-204.686-98.059l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.248-16.379-6.249-22.628 0L184 302.745l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.25 16.379 6.25 22.628.001z"></path>
-                </svg>
-              </span>
-              <span className="point-content">
-               On successful payment, your booking will be confirmed.
-              </span>
-            </li>
-              <li
-              className="about-us-list-1"
-              style={{
-                width: "100%",
-              }}
-            >
-              <span className="about-us-listicons">
-                <svg
-                  aria-hidden="true"
-                  className="svg-inline--fa fa-check fa-w-14"
-                  viewBox="0 0 448 512"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M400 480H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h352c26.51 0 48 21.49 48 48v352c0 26.51-21.49 48-48 48zm-204.686-98.059l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.248-16.379-6.249-22.628 0L184 302.745l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.25 16.379 6.25 22.628.001z"></path>
-                </svg>
-              </span>
-              <span className="point-content">
-              If you close the payment window or cancel, your seats will be unlocked.
-              </span>
-            </li>
-          </ul>
-
-</div>
                   </div>
-                         
-                </div>
-    
-</>
+                </>
               )}
 
               {sepcial !== null && (
@@ -1625,8 +1801,6 @@ if (!isBookingAllowed(journeyDate)) {
                   </div>
                 </div>
               )}
-
-    
             </div>
           </>
         )

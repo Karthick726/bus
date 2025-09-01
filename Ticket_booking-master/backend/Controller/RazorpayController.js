@@ -49,54 +49,34 @@ exports.processPayment = async (req, res) => {
   try {
     const { totalPrice, BookingDetails, date } = req.body;
 
-    const newSeatIds = BookingDetails.map((seat) => seat);
+    const newSeatIds = BookingDetails.map((s) => s.id);
     const now = new Date();
-    const expiryTime = 20 * 60 * 1000; // 20 minutes
+    const expiryTime = 20 * 60 * 1000;
 
     let bookingSeat = await Bookseat.findOne({ date });
     let bookingSession = await Booking.findOne({ date });
 
-    if (!bookingSeat || !bookingSession) {
-      // Create new doc if not exists
+    if (!bookingSeat) {
       bookingSeat = await Bookseat.create({ date, bookings: [] });
+    }
+    if (!bookingSession) {
       bookingSession = await Booking.create({ date, bookings: [] });
     }
 
-    // Remove expired locked seats
-    bookingSeat.bookings = bookingSeat.bookings.filter((seat) => {
-      return !(seat.status === "locked" && now - seat.lockedAt > expiryTime);
-    });
+    bookingSeat.bookings = bookingSeat.bookings.filter(
+      (seat) => !(seat.status === "locked" && now - seat.lockedAt > expiryTime)
+    );
+    bookingSession.bookings = bookingSession.bookings.filter(
+      (seat) => !(seat.status === "locked" && now - seat.lockedAt > expiryTime)
+    );
 
-    bookingSession.bookings = bookingSession.bookings.filter((seat) => {
-      return !(seat.status === "locked" && now - seat.lockedAt > expiryTime);
-    });
-
-    // Check if any selected seat is already booked or locked
+    // Check if requested seats are already locked or booked
     const conflictSeats = bookingSeat.bookings.filter(
       (seat) =>
         newSeatIds.includes(seat.id) &&
         (seat.status === "booked" ||
           (seat.status === "locked" && now - seat.lockedAt <= expiryTime))
     );
-
-    const conflictSeatsSession = bookingSession.bookings.filter(
-      (seat) =>
-        newSeatIds.includes(seat.id) &&
-        (seat.status === "booked" ||
-          (seat.status === "locked" && now - seat.lockedAt <= expiryTime))
-    );
-
-    if (conflictSeatsSession.length > 0) {
-      const conflictNumbers = BookingDetails.filter((s) =>
-        conflictSeatsSession.some((c) => c.id === s.id)
-      ).map((s) => s.number);
-
-      return res.status(400).json({
-        message: `These seat numbers are already booked or locked: ${conflictNumbers.join(
-          ", "
-        )}`,
-      });
-    }
 
     if (conflictSeats.length > 0) {
       const conflictNumbers = BookingDetails.filter((s) =>
@@ -110,9 +90,9 @@ exports.processPayment = async (req, res) => {
       });
     }
 
-    // Lock the selected seats
-    const lockedSeats = newSeatIds.map((seat) => ({
-      id:seat.id,
+    // Lock seats in availability doc
+    const lockedSeats = newSeatIds.map((id) => ({
+      id,
       status: "locked",
       lockedAt: now,
       createdAt: now,
@@ -130,11 +110,12 @@ exports.processPayment = async (req, res) => {
 
     const order = await instance.orders.create(option);
 
-    const lockedSessionSeats = newSeatIds.map((seat) => ({
+    // Save session-specific locked seats
+    const lockedSessionSeats = BookingDetails.map((seat) => ({
       ...seat,
-      status: "locked",
+      bookingStatus: "locked",
       order_id: order.id,
-     
+      lockedAt: now,
     }));
 
     bookingSession.bookings.push(...lockedSessionSeats);
@@ -145,7 +126,8 @@ exports.processPayment = async (req, res) => {
       order,
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
 };
+
