@@ -157,21 +157,33 @@ exports.createBooking = async (req, res) => {
 
     // 🧾 Save to Booking collection (for admin records, history, etc.)
     const booking = await Booking.findOne({ date });
-    if (booking) {
-         
+   if (booking) {
   booking.bookings = booking.bookings.map(b => {
     const newData = bookingData.find(nb => nb.id === b.id);
+
     if (newData) {
-      return { ...b.toObject(), ...newData, bookingStatus: "Booked" };
+      if (b.bookingStatus !== "Cancelled") {
+        return { ...b.toObject(), ...newData, bookingStatus: "Booked" };
+      } else {
+        return b;
+      }
     }
+
     return b;
   });
 
-      await booking.save();
-      // 📲 Send SMS
-      const smsPromises = bookingData.map((each) => sendSms(date, each));
-      const promiseResult = await Promise.all(smsPromises);
-    } else {
+  await booking.save();
+
+  const smsPromises = bookingData
+    .filter(each => {
+      const existing = booking.bookings.find(b => b.id === each.id);
+      return existing && existing.bookingStatus !== "Cancelled";
+    })
+    .map(each => sendSms(date, each));
+
+  const promiseResult = await Promise.all(smsPromises);
+}
+ else {
         await Booking.create({
     date,
     bookings: bookingData.map(b => ({ ...b, bookingStatus: "Booked" })),
